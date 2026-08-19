@@ -128,7 +128,10 @@ async def process_dedline(message: Message, state: FSMContext):
 
 @homework_router.message(F.text == "📋 Переглянути ДЗ")
 async def show_hw(message: Message):
-    if not homework:
+    user_id = message.from_user.id
+    hw_data = await get_homework(user_id)
+
+    if not hw_data:
         await message.answer(
             "🎉 **Наразі немає невиконаних домашніх завдань!**",
             parse_mode="Markdown",
@@ -137,15 +140,20 @@ async def show_hw(message: Message):
 
     text = "📚 **СПИСОК ДОМАШНІХ ЗАВДАНЬ:**\n━━━━━━━━━━━━━━━━━━━\n\n"
 
-    user_id = message.from_user.id
-
-    homework = await get_homework(user_id)
-
-    for hw in  homework:
-        text  += (
-            f"📚 **Предмет:** {hw[1]}\n"
-            f"📝 **Завдання:** {hw[2]}\n"
-            f"⏰ **Дедлайн:** {hw[3]}"
+    # Якщо функція get_homework повертає один словник
+    if isinstance(hw_data, dict):
+        text += (
+            f"📚 **Предмет:** {hw_data['subject']}\n"
+            f"📝 **Завдання:** {hw_data['task']}\n"
+            f"⏰ **Дедлайн:** {hw_data['dedline']}\n"
         )
+    # Якщо повертає список (кілька завдань)
+    elif isinstance(hw_data, list):
+        for hw in hw_data:
+            text += (
+                f"📚 **Предмет:** {hw[1]}\n"
+                f"📝 **Завдання:** {hw[2]}\n"
+                f"⏰ **Дедлайн:** {hw[3]}\n\n"
+            )
 
-        await message.answer(text, parse_mode="Markdown")
+    await message.answer(text, parse_mode="Markdown")
