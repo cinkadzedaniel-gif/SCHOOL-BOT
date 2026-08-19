@@ -126,3 +126,40 @@ async def send_remimber_job(chat_id:int, text: str):
     SCHEDULER_LIST = [item for item in SCHEDULER_LIST if item.get("id")]
 
 
+@scheduler_router.message(F.text == "Переглянути наявні нагадування")
+async def show_reminders(message: Message):
+    user_id = message.from_user.id
+    reminders = await get_remimbers(user_id)
+
+    if not reminders:
+        await message.answer(
+            "📭 **У вас немає активних нагадувань.**",
+            parse_mode="Markdown",
+        )
+        return
+
+    text = "⏰ **ВАШІ НАГАДУВАННЯ:**\n━━━━━━━━━━━━━━━━━━━\n\n"
+    
+    # Якщо повертається один словник або список
+    if isinstance(reminders, dict):
+        text += f"📌 **Текст:** {reminders['text']}\n⏳ **Через скільки хв:** {reminders['run_time']}\n\n"
+    elif isinstance(reminders, list):
+        for rem in reminders:
+            text += f"📌 **Текст:** {rem['text']}\n⏳ **Через скільки хв:** {rem['run_time']}\n\n"
+
+    await message.answer(text, parse_mode="Markdown")
+
+
+@scheduler_router.message(Scheduler.waiting_for_time, F.text == "❌ Скасувати")
+async def cancel_time(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(
+        "❌ Додавання нагадування скасовано.", reply_markup=main_keyboard()
+    )
+
+
+@scheduler_router.message(Scheduler.waiting_for_time)
+async def waitig_time(message: Message, state: FSMContext):
+    await state.update_data(time=message.text)
+    await state.set_state(Scheduler.waitinfg_for_text)
+    await message.answer("Введіть який текст буде приходити вам коли прозвучить нагадування")
