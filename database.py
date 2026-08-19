@@ -4,9 +4,16 @@ REMINDERS_LIST = []
 import aiosqlite
 
 
-HM_NAME = 'homework_database.db'
-GB_NAME = "grades_datebase.db"
-RB_NAME = "remimbers_database.db"
+import os
+from pathlib import Path
+
+# Отримуємо шлях до директорії, де лежить сам файл database.py
+BASE_DIR = Path(__file__).resolve().parent
+
+# Тепер шляхи будуть коректними незалежно від ОС
+HM_NAME = os.path.join(BASE_DIR, 'homework_database.db')
+GB_NAME = os.path.join(BASE_DIR, 'grades_datebase.db')
+RB_NAME = os.path.join(BASE_DIR, 'remimbers_database.db')
 
 async def init_db():
     async with aiosqlite.connect(HM_NAME) as db:
