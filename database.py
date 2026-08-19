@@ -55,7 +55,6 @@ async def init_db():
         print("БАЗА ДАНИХ №3 ГОТОВА ДО РОБОТИ")
 
 
-
 async def get_remimbers(user_id: int):
     async with aiosqlite.connect(RB_NAME) as rb:
         async with rb.execute(
@@ -65,15 +64,18 @@ async def get_remimbers(user_id: int):
         """,
             (user_id,),
         ) as cursor:
-            row = await cursor.fetchall()
+            rows = await cursor.fetchall()
 
-        if row:
-            return{
-                "remimbers_id": row[0],
-                "user_id": row[1],
-                "text": row[2],
-                "run_time": row[3]
-            }
+        if rows:
+            reminders_list = []
+            for row in rows:
+                reminders_list.append({
+                    "remimbers_id": row[0],
+                    "user_id": row[1],
+                    "text": row[2],
+                    "run_time": row[3]
+                })
+            return reminders_list
         return None
 
 
