@@ -140,20 +140,13 @@ async def show_hw(message: Message):
 
     text = "📚 **СПИСОК ДОМАШНІХ ЗАВДАНЬ:**\n━━━━━━━━━━━━━━━━━━━\n\n"
 
-    # Якщо функція get_homework повертає один словник
-    if isinstance(hw_data, dict):
-        text += (
-            f"📚 **Предмет:** {hw_data['subject']}\n"
-            f"📝 **Завдання:** {hw_data['task']}\n"
-            f"⏰ **Дедлайн:** {hw_data['dedline']}\n"
-        )
-    # Якщо повертає список (кілька завдань)
-    elif isinstance(hw_data, list):
+    # Оскільки get_homework тепер завжди повертає список словників
+    if isinstance(hw_data, list):
         for hw in hw_data:
             text += (
-                f"📚 **Предмет:** {hw[1]}\n"
-                f"📝 **Завдання:** {hw[2]}\n"
-                f"⏰ **Дедлайн:** {hw[3]}\n\n"
+                f"📚 **Предмет:** {hw['subject']}\n"
+                f"📝 **Завдання:** {hw['task']}\n"
+                f"⏰ **Дедлайн:** {hw['dedline']}\n\n"
             )
 
     await message.answer(text, parse_mode="Markdown")
