@@ -100,10 +100,9 @@ async def waiting_text(message:Message, state:FSMContext):
 
     async with aiosqlite.connect(RB_NAME) as rb:
         await rb.execute('''
-        INSERT INTO remomber(user_id, text, run_time)       
-        VALUES (?, ?, ?, ?)
-
-        ''', ( user_id, text, run_time,))
+        INSERT INTO remimbers (user_id, text, run_time)       
+        VALUES (?, ?, ?)
+        ''', (user_id, text, str(run_time)))
         await rb.commit()
 
     await state.clear()
