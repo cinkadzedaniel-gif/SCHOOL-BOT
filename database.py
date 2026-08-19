@@ -78,7 +78,6 @@ async def get_remimbers(user_id: int):
 
 
 
-
 async def get_homework(user_id: int):
     async with aiosqlite.connect(HM_NAME) as hw:
         async with hw.execute(
@@ -88,16 +87,20 @@ async def get_homework(user_id: int):
         """,
             (user_id,),
         ) as cursor:
-            row = await cursor.fetchall()
+            rows = await cursor.fetchall()
 
-        if row:
-            return{
-                "hm_id": row[0],
-                "subject": row[1],
-                "task": row[2],
-                "dedline": row[3],
-                "user_id": row[4]    
-            }
+        if rows:
+            # Повертаємо список усіх завдань користувача
+            homework_list = []
+            for row in rows:
+                homework_list.append({
+                    "hm_id": row[0],
+                    "subject": row[1],
+                    "task": row[2],
+                    "dedline": row[3],
+                    "user_id": row[4]
+                })
+            return homework_list
         return None
 
 
