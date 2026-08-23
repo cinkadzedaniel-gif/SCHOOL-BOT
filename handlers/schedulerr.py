@@ -51,71 +51,6 @@ async def start_scheduler(message:Message, state: FSMContext):
     await message.answer("Напишіть час у хвилинах через який прийде одноразове нагадування:")
 
 
-@scheduler_router.message(Scheduler.waiting_for_time)
-async def waitig_time(message:Message, state: FSMContext):
-    if message.text == "❌ Скасувати":
-        await state.clear()
-        await message.answer(
-            "❌ Додавання нагадування скасовано.", reply_markup=main_keyboard()
-        )
-        return 
-    
-    await state.update_data(time = message.text)
-    await state.set_state(Scheduler.waitinfg_for_text)
-    await message.answer("Введіть який текст буде приходити вам коли прозвучить нагадування")
-
-@scheduler_router.message(Scheduler.waitinfg_for_text, )
-async def waiting_text(message:Message, state:FSMContext):
-    if message.text == "❌ Скасувати":
-        await state.clear()
-        await message.answer(
-            "❌ Додавання нагадування скасовано.", reply_markup=main_keyboard()
-        )
-        return 
-    await state.update_data(scheduler_text = message.text)
-
-    user_data = await state.get_data()
-    run_time = user_data.get("time")
-    text = user_data.get("scheduler_text")
-
-    try:
-        minutes = int(run_time)
-    except ValueError:
-        minutes = 10
-
-    run_date = datetime.now() + timedelta(minutes=minutes)
-
-  
-
-    scheduler.add_job(
-        send_remimber_job,
-        trigger = 'date',
-        run_date=run_date,
-        kwargs = {"chat_id": message.chat.id,
-        "text": text,
-        }
-)
-
-    user_id = message.from_user.id
-
-    async with aiosqlite.connect(RB_NAME) as rb:
-        await rb.execute('''
-        INSERT INTO remimbers (user_id, text, run_time)       
-        VALUES (?, ?, ?)
-        ''', (user_id, text, str(run_time)))
-        await rb.commit()
-
-    await state.clear()
-
-
-    text_for_user= (
-    "✅** Нагадування додано!**\n" 
-    f"⏰ **Час: **{run_time}\n"
-    f"📝 **Текст при закінченні нагадування: **{text}\n"
-    )
-    await message.answer(text_for_user, reply_markup=main_keyboard(), parse_mode="Markdown")
-
-
 
 async def send_remimber_job(chat_id:int, text: str):
     await bot.send_message(
@@ -150,8 +85,8 @@ async def show_reminders(message: Message):
     await message.answer(text, parse_mode="Markdown")
 
 
-@scheduler_router.message(Scheduler.waiting_for_time, F.text == "❌ Скасувати")
-async def cancel_time(message: Message, state: FSMContext):
+@scheduler_router.message(Scheduler.waitinfg_for_text, F.text == "❌ Скасувати")
+async def cancel_scheduler(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
         "❌ Додавання нагадування скасовано.", reply_markup=main_keyboard()
@@ -163,3 +98,44 @@ async def waitig_time(message: Message, state: FSMContext):
     await state.update_data(time=message.text)
     await state.set_state(Scheduler.waitinfg_for_text)
     await message.answer("Введіть який текст буде приходити вам коли прозвучить нагадування")
+
+
+@scheduler_router.message(Scheduler.waitinfg_for_text)
+async def waiting_text(message: Message, state: FSMContext):
+    await state.update_data(scheduler_text=message.text)
+
+    user_data = await state.get_data()
+    run_time = user_data.get("time")
+    text = user_data.get("scheduler_text")
+
+    try:
+        minutes = int(run_time)
+    except ValueError:
+        minutes = 10
+
+    run_date = datetime.now() + timedelta(minutes=minutes)
+
+    scheduler.add_job(
+        send_remimber_job,
+        trigger='date',
+        run_date=run_date,
+        kwargs={"chat_id": message.chat.id, "text": text}
+    )
+
+    user_id = message.from_user.id
+
+    async with aiosqlite.connect(RB_NAME) as rb:
+        await rb.execute('''
+        INSERT INTO remimbers (user_id, text, run_time)       
+        VALUES (?, ?, ?)
+        ''', (user_id, text, str(run_time)))
+        await rb.commit()
+
+    await state.clear()
+
+    text_for_user = (
+        "✅ **Нагадування додано!**\n" 
+        f"⏰ **Час:** {run_time} хв.\n"
+        f"📝 **Текст:** {text}\n"
+    )
+    await message.answer(text_for_user, reply_markup=main_keyboard(), parse_mode="Markdown")
