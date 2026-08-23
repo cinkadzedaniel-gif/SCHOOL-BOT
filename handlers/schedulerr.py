@@ -102,6 +102,17 @@ async def waitig_time(message: Message, state: FSMContext):
 
 @scheduler_router.message(Scheduler.waitinfg_for_text)
 async def waiting_text(message: Message, state: FSMContext):
+
+    try:
+        user_num = float(message.text)  # Спробуємо перетворити текст на число
+        if user_num < 1:
+            await message.answer("Введіть число, яке більше або дорівнює 1")
+            return  
+    except ValueError:
+    # Якщо це взагалі не число (наприклад, літери)
+        await message.answer("Будь ласка, введіть коректне число")
+        return
+
     await state.update_data(scheduler_text=message.text)
 
     user_data = await state.get_data()
