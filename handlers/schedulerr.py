@@ -69,7 +69,8 @@ async def waiting_text(message: Message, state: FSMContext):
         send_remimber_job,
         trigger='date',
         run_date=run_date,
-        kwargs={"chat_id": message.chat.id, "text": text}
+        kwargs={"chat_id": message.chat.id, "text": text},
+        misfire_grace_time=60
     )
 
     user_id = message.from_user.id
