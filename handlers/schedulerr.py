@@ -122,3 +122,15 @@ async def show_reminders(message: Message):
             text += f"📌 **Текст:** {rem['text']}\n⏳ **Через скільки хв:** {rem['run_time']}\n\n"
 
     await message.answer(text, parse_mode="Markdown")
+
+
+
+async def send_remimber_job(chat_id: int, text: str):
+    print(f"🔥 СПРАЦЮВАВ ПЛАНУВАЛЬНИК! Намагаюсь надіслати в чат {chat_id}") # <-- Додай це сюди
+    try:
+        await bot.send_message(
+            chat_id=chat_id, text=f"⏰ **НАГАДУВАННЯ!**\n\n📌 {text}", parse_mode="Markdown"
+        )
+        print("✅ Повідомлення успішно надіслано в Telegram!")
+    except Exception as e:
+        print(f"❌ ПОМИЛКА надсилання нагадування: {e}")
