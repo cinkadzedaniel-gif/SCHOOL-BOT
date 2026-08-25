@@ -62,6 +62,7 @@ async def waiting_text(message: Message, state: FSMContext):
     user_data = await state.get_data()
     minutes = user_data.get("time", 10)
 
+    # Використовуємо системний час без сторонніх часових поясів
     run_date = datetime.now() + timedelta(minutes=minutes)
 
     # Додаємо завдання в планувальник

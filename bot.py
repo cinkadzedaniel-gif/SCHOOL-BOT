@@ -11,9 +11,6 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = Bot(token=BOT_TOKEN)
 
 
-
-# scheduler_instance.py
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-timezone = pytz.timezone("Europe/Kiev")
-scheduler = AsyncIOScheduler(timezone=timezone)
+scheduler = AsyncIOScheduler()
