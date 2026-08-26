@@ -21,6 +21,7 @@ from handlers.schedulerr import scheduler_router
 from handlers.start import start_router
 from bot import bot
 from database import init_db
+from handlers.dedline import dedline_router
 
 
 dp = Dispatcher()
@@ -33,7 +34,7 @@ dp.include_router(homework_router)
 dp.include_router(scheduler_router)
 dp.include_router(schedule_router)
 dp.include_router(start_router)
-
+dp.include_router(dedline_router)
 
 
 

@@ -18,6 +18,7 @@ def main_keyboard():
             [KeyboardButton(text="📚 Домашнє завдання")],
             [KeyboardButton(text="📅 Розклад")],
             [KeyboardButton(text= "⏲Нагадування")]
+            [KeyboardButton(text= "Дедлайни")]
         ],
         resize_keyboard=True,
     )
@@ -106,4 +107,13 @@ def scheduler_keyboard():
         resize_keyboard=True,
         one_time_keyboard=True
 
+    )
+
+
+def dedline_keyboard():
+    return ReplyKeyboardMarkup(
+        keyboard = [
+            [KeyboardButton(text = "Додати дедлайн")],
+            [KeyboardButton(text = "Переглянути дедлайни")]
+        ]
     )
