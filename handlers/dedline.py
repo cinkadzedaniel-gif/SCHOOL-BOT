@@ -18,24 +18,24 @@ class Dedline(StatesGroup):
 async def  menu (message:Message):
     await message.answer("Оберіть дію", reply_markup=dedline_keyboard())
 
-@dedline_router(F.text == "Встановити дедлайн")
+@dedline_router.message(F.text == "Встановити дедлайн")
 async def add_dedlina(message:Message, state: FSMContext):
     await message.answer("Напишіть назву дедлайну")
     await state.set_state(Dedline.waiting_for_name)
 
-@dedline_router(Dedline.waiting_for_name)
+@dedline_router.message(Dedline.waiting_for_name)
 async def waiting_name(message:Message, state: FSMContext):
     await state.update_data(name = message.text)
     await message.answer("Чудово, тепер напишіть дату на яку встановлюємо цей дедлайн")
     await state.set_state(Dedline.waiting_for_date)
 
-@dedline_router(Dedline.waiting_for_date)
+@dedline_router.message(Dedline.waiting_for_date)
 async def waiting_data(message:Message, state: FSMContext):
     await state.update_data(date = message.text)
     await message.answer("Введіть опис дедлайна")
     await state.set_state(Dedline.waiting_for_description)
 
-@dedline_router(Dedline.waiting_for_description)
+@dedline_router.message(Dedline.waiting_for_description)
 async def waiting_discription(message:Message, state: FSMContext):
     discription = message.text
 
