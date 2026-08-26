@@ -14,7 +14,7 @@ class Dedline(StatesGroup):
     waiting_for_description = State()
 
 
-@dedline_router(F.text == "Дедлайни")
+@dedline_router.message(F.text == "Дедлайни")
 async def  menu (message:Message):
     await message.answer("Оберіть дію", reply_markup=dedline_keyboard())
 
