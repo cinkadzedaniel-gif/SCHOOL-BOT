@@ -17,7 +17,7 @@ def main_keyboard():
             [KeyboardButton(text="📊 Перевірка оцінок")],
             [KeyboardButton(text="📚 Домашнє завдання")],
             [KeyboardButton(text="📅 Розклад")],
-            [KeyboardButton(text= "⏲Нагадування")]
+            [KeyboardButton(text= "⏲Нагадування")],
             [KeyboardButton(text= "Дедлайни")]
         ],
         resize_keyboard=True,
