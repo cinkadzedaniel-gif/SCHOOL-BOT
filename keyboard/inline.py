@@ -66,7 +66,7 @@ def subject_keyboard():
     )
 
 
-def dedline_keyboard():
+def dedline_dates_keyboard():
     days_ua = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"]
     today = datetime.now()
     keyboard_buttons = []

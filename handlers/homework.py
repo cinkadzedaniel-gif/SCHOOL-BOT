@@ -11,7 +11,7 @@ from aiogram.types import (
 )
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from keyboard.inline import subject_keyboard, main_keyboard, dedline_keyboard
+from keyboard.inline import subject_keyboard, main_keyboard, dedline_dates_keyboard
 import aiosqlite
 from database import HM_NAME, get_homework
 
@@ -82,7 +82,7 @@ async def process_task(message: Message, state: FSMContext):
     await state.set_state(AddHomework.waiting_for_dedline)
     await message.answer(
         "⏰ Оберіть дедлайн зі списку або введіть дату вручну:",
-        reply_markup=dedline_keyboard(),
+        reply_markup=dedline_dates_keyboard(),
     )
 
 
