@@ -158,18 +158,20 @@ async def get_user_subject_grades(user_id: int, subject: str):
 
 
 
-async def add_dedline(title:str, date:str, discription:str, user_id:int):
-    async with aiosqlite.connect(RB_NAME) as db:
-        await db.execute('''
-            INSERT INTO deadlines ( title, date, discription, user_id)
-            VALUES (?, ?, ?)
+async def add_dedline(title: str, date: str, discription: str, user_id: int):
+    async with aiosqlite.connect(DD_NAME) as dd:  
+        await dd.execute('''
+            INSERT INTO dedline (title, date, dicription, user_id)
+            VALUES (?, ?, ?, ?)
         ''', (title, date, discription, user_id))
-        await db.commit()
+        await dd.commit()
 
 
 async def get_dedlines(user_id: int):
     async with aiosqlite.connect(DD_NAME) as dd:
-        dd.row_factory = aiosqlite.Row  # Щоб звертатися до полів за назвою (row['title'])
-        async with dd.execute('SELECT title, deadline_date FROM deadlines WHERE user_id = ?', (user_id,)) as cursor:
+        dd.row_factory = aiosqlite.Row
+
+        async with dd.execute('SELECT title, date FROM dedline WHERE user_id = ?', (user_id,)) as cursor:
             rows = await cursor.fetchall()
             return [dict(row) for row in rows]
+        

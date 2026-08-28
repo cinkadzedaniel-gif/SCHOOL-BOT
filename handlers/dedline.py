@@ -75,6 +75,7 @@ async def view_dedline(message: Message):
     text = "📂 **ВАШІ ДЕДЛАЙНИ:**\n━━━━━━━━━━━━━━━━━━━\n\n"
     
     for index, item in enumerate(deadlines, start=1):
-        text += f"{index}. 📌 **Завдання:** {item['title']}\n⏳ **До:** {item['deadline_date']}\n\n"
+
+        text += f"{index}. 📌 **Завдання:** {item['title']}\n⏳ **До:** {item['date']}\n\n"
 
     await message.answer(text, parse_mode="Markdown")
