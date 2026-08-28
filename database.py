@@ -14,6 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent
 HM_NAME = os.path.join(BASE_DIR, 'homework_database.db')
 GB_NAME = os.path.join(BASE_DIR, 'grades_datebase.db')
 RB_NAME = os.path.join(BASE_DIR, 'remimbers_database.db')
+DD_NAME = os.pat.join(BASE_DIR, 'dedline_database.db')
 
 async def init_db():
     async with aiosqlite.connect(HM_NAME) as db:
@@ -53,6 +54,20 @@ async def init_db():
 ''')
         await rb.commit()
         print("БАЗА ДАНИХ №3 ГОТОВА ДО РОБОТИ")
+
+    async with aiosqlite.connect(DD_NAME) as dd:
+        await dd.execute('''
+    CREATE TABLE IF NOT EXISTS dedline(
+    dd_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    date TEXT,  
+    dicription TEXT,
+    user_id INTEGER 
+    )
+''')
+        await dd.commit()
+        print("База даних №4 готова до роботи")
+
 
 
 async def get_remimbers(user_id: int):
@@ -140,3 +155,13 @@ async def get_user_subject_grades(user_id: int, subject: str):
         ) as cursor:
             row = await cursor.fetchone()
             return row[0] if row else None
+
+
+
+async def add_dedline(title:str, date:str, discription:str, user_id:int):
+    async with aiosqlite.connect(RB_NAME) as db:
+        await db.execute('''
+            INSERT INTO deadlines ( title, date, discription, user_id)
+            VALUES (?, ?, ?)
+        ''', (title, date, discription, user_id))
+        await db.commit()

@@ -3,7 +3,8 @@ from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from keyboard.inline import dedline_keyboard
+from keyboard.inline import dedline_keyboard, main_keyboard 
+from database import add_dedline
 
 
 dedline_router = Router()
@@ -40,17 +41,20 @@ async def waiting_discription(message:Message, state: FSMContext):
     discription = message.text
 
     user_date = await state.get_data()
-    name = user_date.get("name")
+    title = user_date.get("name")
     date = user_date.get("date")
+    user_id = message.from_user.id
+
+    await add_dedline(title, date, discription, user_id )
 
     state.clear()
 
     text = (
         "ДЕДЛАЙН ВСТАНОВЛЕННО!!!!\n"
-        f"Назва: {name}\n"
+        f"Назва: {title}\n"
         f"Дата дедлайна {date}\n"
         f"Опис: {discription}"
     )
-    await message.answer(text, parse_mode = "Markdown")
+    await message.answer(text, parse_mode = "Markdown", reply_markup = main_keyboard())
 
     await state.clear()
