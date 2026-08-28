@@ -168,8 +168,8 @@ async def add_dedline(title:str, date:str, discription:str, user_id:int):
 
 
 async def get_dedlines(user_id: int):
-    async with aiosqlite.connect(RB_NAME) as db:
-        db.row_factory = aiosqlite.Row  # Щоб звертатися до полів за назвою (row['title'])
-        async with db.execute('SELECT title, deadline_date FROM deadlines WHERE user_id = ?', (user_id,)) as cursor:
+    async with aiosqlite.connect(DD_NAME) as dd:
+        dd.row_factory = aiosqlite.Row  # Щоб звертатися до полів за назвою (row['title'])
+        async with dd.execute('SELECT title, deadline_date FROM deadlines WHERE user_id = ?', (user_id,)) as cursor:
             rows = await cursor.fetchall()
             return [dict(row) for row in rows]
