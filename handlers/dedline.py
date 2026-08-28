@@ -18,7 +18,7 @@ class Dedline(StatesGroup):
 async def  menu (message:Message):
     await message.answer("Оберіть дію", reply_markup=dedline_keyboard())
 
-@dedline_router.message(F.text == "Встановити дедлайн")
+@dedline_router.message(F.text == "Додати дедлайн")
 async def add_dedlina(message:Message, state: FSMContext):
     await message.answer("Напишіть назву дедлайну")
     await state.set_state(Dedline.waiting_for_name)
@@ -52,3 +52,5 @@ async def waiting_discription(message:Message, state: FSMContext):
         f"Опис: {discription}"
     )
     await message.answer(text, parse_mode = "Markdown")
+
+    await state.clear()

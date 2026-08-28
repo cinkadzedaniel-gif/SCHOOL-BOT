@@ -114,6 +114,7 @@ def dedline_keyboard():
     return ReplyKeyboardMarkup(
         keyboard = [
             [KeyboardButton(text = "Додати дедлайн")],
-            [KeyboardButton(text = "Переглянути дедлайни")]
+            [KeyboardButton(text = "Переглянути дедлайни")],
+            [KeyboardButton(text = "❌ Скасувати")]
         ]
     )
