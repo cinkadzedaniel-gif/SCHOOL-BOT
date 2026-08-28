@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent
 HM_NAME = os.path.join(BASE_DIR, 'homework_database.db')
 GB_NAME = os.path.join(BASE_DIR, 'grades_datebase.db')
 RB_NAME = os.path.join(BASE_DIR, 'remimbers_database.db')
-DD_NAME = os.pat.join(BASE_DIR, 'dedline_database.db')
+DD_NAME = os.path.join(BASE_DIR, 'dedline_database.db')
 
 async def init_db():
     async with aiosqlite.connect(HM_NAME) as db:
