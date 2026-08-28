@@ -60,7 +60,7 @@ async def waiting_discription(message:Message, state: FSMContext):
     await state.clear()
 
 
-@dedline_keyboard.message(F.text == "Переглянути дедлайни")
+@dedline_router.message(F.text == "Переглянути дедлайни")
 async def view_dedline(message: Message):
     user_id = message.from_user.id
     deadlines = await get_dedlines(user_id)
