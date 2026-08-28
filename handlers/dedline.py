@@ -4,7 +4,7 @@ from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from keyboard.inline import dedline_keyboard, main_keyboard 
-from database import add_dedline
+from database import add_dedline, get_dedlines
 
 
 dedline_router = Router()
@@ -58,3 +58,23 @@ async def waiting_discription(message:Message, state: FSMContext):
     await message.answer(text, parse_mode = "Markdown", reply_markup = main_keyboard())
 
     await state.clear()
+
+
+@dedline_keyboard.message(F.text == "Переглянути дедлайни")
+async def view_dedline(message: Message):
+    user_id = message.from_user.id
+    deadlines = await get_dedlines(user_id)
+
+    if not deadlines:
+        await message.answer(
+            "📭 **У вас немає активних дедлайнів.**",
+            parse_mode="Markdown",
+        )
+        return
+
+    text = "📂 **ВАШІ ДЕДЛАЙНИ:**\n━━━━━━━━━━━━━━━━━━━\n\n"
+    
+    for index, item in enumerate(deadlines, start=1):
+        text += f"{index}. 📌 **Завдання:** {item['title']}\n⏳ **До:** {item['deadline_date']}\n\n"
+
+    await message.answer(text, parse_mode="Markdown")
