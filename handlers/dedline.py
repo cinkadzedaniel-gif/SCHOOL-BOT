@@ -82,15 +82,30 @@ async def view_dedline(message: Message):
     deadlines = await get_dedlines(user_id)
 
     if not deadlines:
-        await message.answer(
-            "📭 **У вас немає активних дедлайнів.**",
-            parse_mode="Markdown",
-        )
+        await message.answer("📭 **У вас немає активних дедлайнів.**", parse_mode="Markdown")
         return
 
-    text = "📂 **ВАШІ ДЕДЛАЙНИ:**\n━━━━━━━━━━━━━━━━━━━\n\n"
-    
-    for index, item in enumerate(deadlines, start=1):
-        text += f"{index}. 📌 **Завдання:** {item['title']}\n⏳ **До:** {item['deadline_date']}\n📝 **Опис:** {item['description']}\n\n"
+    for item in deadlines:
+        text = (
+            f"📌 **Завдання:** {item['title']}\n"
+            f"⏳ **До:** {item['deadline_date']}\n"
+            f"📝 **Опис:** {item['description']}"
+        )
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="🗑 Видалити дедлайн", callback_data=f"del_deadline_{item['id']}")]
+        ])
+        await message.answer(text, parse_mode="Markdown", reply_markup=keyboard)
 
-    await message.answer(text, parse_mode="Markdown")
+@dedline_router.callback_query(F.data.startswith("del_deadline_"))
+async def process_delete_deadline(callback: CallbackQuery):
+    deadline_id = int(callback.data.split("_")[2])
+    calendar_event_id = await delete_deadline_from_db(deadline_id)
+
+    if calendar_event_id:
+        try:
+            delete_event(CALENDAR_ID, calendar_event_id)
+        except Exception as e:
+            print(f"Помилка видалення з календаря: {e}")
+
+    await callback.message.edit_text("🗑 **Дедлайн успішно видалено!**", parse_mode="Markdown")
+    await callback.answer()

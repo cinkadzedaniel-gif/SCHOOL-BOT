@@ -143,6 +143,16 @@ async def add_dedline(title: str, date: str, discription: str, user_id: int, cal
 async def get_dedlines(user_id: int):
     async with aiosqlite.connect(RB_NAME) as rb:
         rb.row_factory = aiosqlite.Row
-        async with rb.execute('SELECT title, deadline_date, description FROM deadlines WHERE user_id = ?', (user_id,)) as cursor:
+        async with rb.execute('SELECT id, title, deadline_date, description FROM deadlines WHERE user_id = ?', (user_id,)) as cursor:
             rows = await cursor.fetchall()
             return [dict(row) for row in rows]
+
+async def delete_deadline_from_db(deadline_id: int):
+    async with aiosqlite.connect(RB_NAME) as rb:
+        async with rb.execute('SELECT calendar_event_id FROM deadlines WHERE id = ?', (deadline_id,)) as cursor:
+            row = await cursor.fetchone()
+            calendar_event_id = row[0] if row else None
+
+        await rb.execute('DELETE FROM deadlines WHERE id = ?', (deadline_id,))
+        await rb.commit()
+        return calendar_event_id
