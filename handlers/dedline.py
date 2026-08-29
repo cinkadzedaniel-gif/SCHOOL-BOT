@@ -4,10 +4,9 @@ from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from keyboard.inline import dedline_keyboard, main_keyboard 
-from database import add_dedline, get_dedlines
-from google_service import create_event, CALENDAR_ID
+from database import add_dedline, get_dedlines, delete_deadline_from_db
+from google_service import create_event, delete_event, CALENDAR_ID
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from database import get_dedlines, delete_deadline_from_db  
 
 dedline_router = Router()
 
@@ -105,7 +104,7 @@ async def process_delete_deadline(callback: CallbackQuery):
 
     if calendar_event_id:
         try:
-            delete_deadline_from_db (CALENDAR_ID, calendar_event_id)
+            delete_event(CALENDAR_ID, calendar_event_id)
         except Exception as e:
             print(f"Помилка видалення з календаря: {e}")
 
