@@ -18,7 +18,8 @@ def main_keyboard():
             [KeyboardButton(text="📚 Домашнє завдання")],
             [KeyboardButton(text="📅 Розклад")],
             [KeyboardButton(text= "⏲Нагадування")],
-            [KeyboardButton(text= "Дедлайни")]
+            [KeyboardButton(text= "Дедлайни")],
+            [KeyboardButton(text="Відмітитись для їдальні")]
         ],
         resize_keyboard=True,
     )

@@ -50,7 +50,7 @@ def get_attendance_keyboard(attendance_dict):
     ])
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-@router.message(F.text == "/canteen")
+@router.message(F.text == "Відмітитись для їдальні")
 async def cmd_canteen(message: Message):
     await message.answer(
         "Відміть тих, хто присутній:",

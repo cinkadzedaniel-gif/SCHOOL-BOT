@@ -121,7 +121,7 @@ async def show_reminders(message: Message):
         for rem in reminders:
             text += f"📌 **Текст:** {rem['text']}\n⏳ **Через скільки хв:** {rem['run_time']}\n\n"
 
-    await message.answer(text, parse_mode="Markdown")
+    await message.answer(text, parse_mode="Markdown", reply_markup=main_keyboard())
 
 
 

@@ -95,7 +95,7 @@ async def view_dedline(message: Message):
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="🗑 Видалити дедлайн", callback_data=f"del_deadline_{item['id']}")]
         ])
-        await message.answer(text, parse_mode="Markdown", reply_markup=keyboard)
+        await message.answer(text, parse_mode="Markdown", reply_markup=main_keyboard())
 
 @dedline_router.callback_query(F.data.startswith("del_deadline_"))
 async def process_delete_deadline(callback: CallbackQuery):
@@ -108,5 +108,5 @@ async def process_delete_deadline(callback: CallbackQuery):
         except Exception as e:
             print(f"Помилка видалення з календаря: {e}")
 
-    await callback.message.edit_text("🗑 **Дедлайн успішно видалено!**", parse_mode="Markdown")
+    await callback.message.edit_text("🗑 **Дедлайн успішно видалено!**", parse_mode="Markdown", reply_markup=main_keyboard())
     await callback.answer()
