@@ -3,7 +3,7 @@ import aiosqlite
 from aiogram import F, Router
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
-router = Router()
+canteen_router = Router()
 
 DB_NAME = "attendance.db"
 
