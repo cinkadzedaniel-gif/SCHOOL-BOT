@@ -69,7 +69,7 @@ async def init_db():
                 count INTEGER
             )
         """)
-        await db.commit()
+            await db.commit()
 
 async def get_remimbers(user_id: int):
     async with aiosqlite.connect(RB_NAME) as rb:
