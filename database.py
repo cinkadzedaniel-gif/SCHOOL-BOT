@@ -7,6 +7,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 
+DB_NAME = os.path.join(BASE_DIR, 'centeen_database.db')
 HM_NAME = os.path.join(BASE_DIR, 'homework_database.db')
 GB_NAME = os.path.join(BASE_DIR, 'grades_datebase.db')
 RB_NAME = os.path.join(BASE_DIR, 'remimbers_database.db')
@@ -59,6 +60,16 @@ async def init_db():
         ''')
         await rb.commit()
         print("БАЗА ДАНИХ №3 ГОТОВА ДО РОБОТИ")
+
+
+        async with aiosqlite.connect(DB_NAME) as db:
+            await db.execute("""
+            CREATE TABLE IF NOT EXISTS attendance_reports (
+                date TEXT PRIMARY KEY,
+                count INTEGER
+            )
+        """)
+        await db.commit()
 
 async def get_remimbers(user_id: int):
     async with aiosqlite.connect(RB_NAME) as rb:
