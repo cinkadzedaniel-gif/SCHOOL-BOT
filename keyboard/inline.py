@@ -11,19 +11,27 @@ from datetime import datetime, timedelta
 
 
 
-def main_keyboard():
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="📊 Перевірка оцінок")],
-            [KeyboardButton(text="📚 Домашнє завдання")],
-            [KeyboardButton(text="📅 Розклад")],
-            [KeyboardButton(text= "⏲Нагадування")],
-            [KeyboardButton(text= "Дедлайни")],
-            [KeyboardButton(text="Відмітитись для їдальні")]
-        ],
-        resize_keyboard=True,
-    )
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
+
+def main_keyboard():
+  return ReplyKeyboardMarkup(
+      keyboard=[
+          [
+              KeyboardButton(text="📊 Перевірка оцінок"),
+              KeyboardButton(text="📚 Домашнє завдання"),
+          ],
+          [
+              KeyboardButton(text="📅 Розклад"),
+              KeyboardButton(text="⏲Нагадування"),
+          ],
+          [
+              KeyboardButton(text="Дедлайни"),
+              KeyboardButton(text="Відмітитись для їдальні"),
+          ],
+      ],
+      resize_keyboard=True,
+  )
 
 def subject_keyboard():
     return ReplyKeyboardMarkup(

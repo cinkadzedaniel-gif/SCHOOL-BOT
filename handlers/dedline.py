@@ -15,13 +15,22 @@ class Dedline(StatesGroup):
     waiting_for_date = State()
     waiting_for_description = State()
 
+# Глобальне скасування для будь-якого стану дедлайнів
+@dedline_router.message(Dedline.waiting_for_name, F.text == "❌ Скасувати")
+@dedline_router.message(Dedline.waiting_for_date, F.text == "❌ Скасувати")
+@dedline_router.message(Dedline.waiting_for_description, F.text == "❌ Скасувати")
+@dedline_router.message(F.text == "❌ Скасувати")
+async def cancel_deadline(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer("❌ Дюдію скасовано. Повертаємось у головне меню", reply_markup=main_keyboard())
+
 @dedline_router.message(F.text == "Дедлайни")
 async def menu(message: Message):
     await message.answer("Оберіть дію", reply_markup=dedline_keyboard())
 
 @dedline_router.message(F.text == "Додати дедлайн")
 async def add_dedlina(message: Message, state: FSMContext):
-    await message.answer("Напишіть назву дедлайну")
+    await message.answer("Напишіть назву дедлайну", reply_markup=dedline_keyboard()) # або ReplyKeyboardRemove якщо потрібно
     await state.set_state(Dedline.waiting_for_name)
 
 @dedline_router.message(Dedline.waiting_for_name)
@@ -66,7 +75,6 @@ async def waiting_discription(message: Message, state: FSMContext):
         print(f"Помилка створення події в Google Календарі: {e}")
 
     await add_dedline(title, date_str, discription, user_id, event_id)
-
     await state.clear()
 
     text = (
@@ -92,10 +100,7 @@ async def view_dedline(message: Message):
             f"⏳ **До:** {item['deadline_date']}\n"
             f"📝 **Опис:** {item['description']}"
         )
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="🗑 Видалити дедлайн", callback_data=f"del_deadline_{item['id']}")]
-        ])
-        await message.answer(text, parse_mode="Markdown", reply_markup=main_keyboard())
+        await message.answer(text, parse_mode="Markdown")
 
 @dedline_router.callback_query(F.data.startswith("del_deadline_"))
 async def process_delete_deadline(callback: CallbackQuery):
@@ -108,5 +113,5 @@ async def process_delete_deadline(callback: CallbackQuery):
         except Exception as e:
             print(f"Помилка видалення з календаря: {e}")
 
-    await callback.message.edit_text("🗑 **Дедлайн успішно видалено!**", parse_mode="Markdown", reply_markup=main_keyboard())
+    await callback.message.edit_text("🗑 **Дедлайн успішно видалено!**", parse_mode="Markdown")
     await callback.answer()

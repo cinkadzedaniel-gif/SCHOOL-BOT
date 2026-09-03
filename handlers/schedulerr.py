@@ -16,8 +16,6 @@ import asyncio
 from datetime import datetime, timedelta
 from database import init_db, get_remimbers, RB_NAME
 from bot import bot 
-
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from bot import scheduler  
 
 scheduler_router = Router()
@@ -35,14 +33,20 @@ async def start_scheduler(message: Message, state: FSMContext):
     await state.set_state(Scheduler.waiting_for_time)
     await message.answer("Напишіть час у хвилинах через який прийде одноразове нагадування:", reply_markup=ReplyKeyboardRemove())
 
+# Виправлене скасування для будь-якого етапу нагадувань
 @scheduler_router.message(Scheduler.waiting_for_time, F.text == "❌ Скасувати")
 @scheduler_router.message(Scheduler.waiting_for_text, F.text == "❌ Скасувати")
+@scheduler_router.message(F.text == "❌ Скасувати")
 async def cancel_scheduler(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer("❌ Додавання нагадування скасовано.", reply_markup=main_keyboard())
+    await message.answer("❌ Додавання нагадування скасовано.", reply_markup=main_keyboard()) 
 
 @scheduler_router.message(Scheduler.waiting_for_time)
 async def waiting_time(message: Message, state: FSMContext):
+    if message.text == "❌ Скасувати":
+        await cancel_scheduler(message, state)
+        return
+
     try:
         minutes = int(message.text)
         if minutes <= 0:
@@ -58,14 +62,16 @@ async def waiting_time(message: Message, state: FSMContext):
 
 @scheduler_router.message(Scheduler.waiting_for_text)
 async def waiting_text(message: Message, state: FSMContext):
+    if message.text == "❌ Скасувати":
+        await cancel_scheduler(message, state)
+        return
+
     text = message.text
     user_data = await state.get_data()
     minutes = user_data.get("time", 10)
 
-    # Використовуємо системний час без сторонніх часових поясів
     run_date = datetime.now() + timedelta(minutes=minutes)
 
-    # Додаємо завдання в планувальник
     scheduler.add_job(
         send_remimber_job,
         trigger='date',
@@ -76,7 +82,6 @@ async def waiting_text(message: Message, state: FSMContext):
 
     user_id = message.from_user.id
 
-    # Зберігаємо в базу даних
     async with aiosqlite.connect(RB_NAME) as rb:
         await rb.execute('''
         INSERT INTO remimbers (user_id, text, run_time)       
@@ -122,15 +127,3 @@ async def show_reminders(message: Message):
             text += f"📌 **Текст:** {rem['text']}\n⏳ **Через скільки хв:** {rem['run_time']}\n\n"
 
     await message.answer(text, parse_mode="Markdown", reply_markup=main_keyboard())
-
-
-
-async def send_remimber_job(chat_id: int, text: str):
-    print(f"🔥 СПРАЦЮВАВ ПЛАНУВАЛЬНИК! Намагаюсь надіслати в чат {chat_id}") # <-- Додай це сюди
-    try:
-        await bot.send_message(
-            chat_id=chat_id, text=f"⏰ **НАГАДУВАННЯ!**\n\n📌 {text}", parse_mode="Markdown"
-        )
-        print("✅ Повідомлення успішно надіслано в Telegram!")
-    except Exception as e:
-        print(f"❌ ПОМИЛКА надсилання нагадування: {e}")

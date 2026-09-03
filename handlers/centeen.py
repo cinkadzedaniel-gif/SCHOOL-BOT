@@ -2,46 +2,51 @@ from datetime import datetime
 import aiosqlite
 from aiogram import F, Router
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from database import DB_NAME
 
 canteen_router = Router()
 
-DB_NAME = "attendance.db"
-
+# Тепер замість True/False тримаємо статус: "absent" (❌), "present" (✅), "n" (🔴 Н)
 class_attendance = {
-    "Андрусяк Т.": False,
-    "Андрущенко В.": False,
-    "Білоусько А.": False,
-    "Валаміна А.": False,
-    "Вишневський Т.": False,
-    "Гуріна А.": False,
-    "Дрозденко Д.": False,
-    "Климук У.": False,
-    "Коваленко О.": False,
-    "Коваль М.": False,
-    "Кожемякін А.": False,
-    "Колісніченко О.": False,
-    "Кондрашова К.": False,
-    "Костакі В.": False,
-    "Ляска С.": False,
-    "Макієвський С.": False,
-    "Маноха А.": False,
-    "Мацан Н.": False,
-    "Мельниченко С.": False,
-    "Перемот В.": False,
-    "Петренко П.": False,
-    "Піддубна С.": False,
-    "Саусенко М.": False,
-    "Свіріда О.": False,
-    "Третяк А.": False,
-    "Чінкадзе Д.": False,
-    "Яковлєв А.": False,
+    "Андрусяк Т.": "absent",
+    "Андрущенко В.": "absent",
+    "Білоусько А.": "absent",
+    "Валаміна А.": "absent",
+    "Вишневський Т.": "absent",
+    "Гуріна А.": "absent",
+    "Дрозденко Д.": "absent",
+    "Климук У.": "absent",
+    "Коваленко О.": "absent",
+    "Коваль М.": "absent",
+    "Кожемякін А.": "absent",
+    "Колісніченко О.": "absent",
+    "Кондрашова К.": "absent",
+    "Костакі В.": "absent",
+    "Ляска С.": "absent",
+    "Макієвський С.": "absent",
+    "Маноха А.": "absent",
+    "Мацан Н.": "absent",
+    "Мельниченко С.": "absent",
+    "Перемот В.": "absent",
+    "Петренко П.": "absent",
+    "Піддубна С.": "absent",
+    "Саусенко М.": "absent",
+    "Свіріда О.": "absent",
+    "Третяк А.": "absent",
+    "Чінкадзе Д.": "absent",
+    "Яковлєв А.": "absent",
 }
-
 
 def get_attendance_keyboard(attendance_dict):
     keyboard = []
     for name, status in attendance_dict.items():
-        icon = "✅" if status else "❌"
+        if status == "present":
+            icon = "✅"
+        elif status == "n":
+            icon = "🔴 н"
+        else:
+            icon = "❌"
+            
         keyboard.append([
             InlineKeyboardButton(text=f"{name}: {icon}", callback_data=f"toggle_{name}")
         ])
@@ -50,26 +55,36 @@ def get_attendance_keyboard(attendance_dict):
     ])
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-@router.message(F.text == "Відмітитись для їдальні")
+@canteen_router.message(F.text == "Відмітитись для їдальні")
 async def cmd_canteen(message: Message):
     await message.answer(
-        "Відміть тих, хто присутній:",
+        "Відміть тих, хто присутній (натискай на кнопку, щоб змінити статус: ❌ ➡️ ✅ ➡️ 🔴 н):",
         reply_markup=get_attendance_keyboard(class_attendance)
     )
 
-@router.callback_query(F.data.startswith("toggle_"))
+@canteen_router.callback_query(F.data.startswith("toggle_"))
 async def toggle_student(callback: CallbackQuery):
     name = callback.data.split("_", 1)[1]
     if name in class_attendance:
-        class_attendance[name] = not class_attendance[name]
+        current_status = class_attendance[name]
+        # Зміна станів по колу: absent (❌) -> present (✅) -> n (🔴 н) -> absent (❌)
+        if current_status == "absent":
+            class_attendance[name] = "present"
+        elif current_status == "present":
+            class_attendance[name] = "n"
+        else:
+            class_attendance[name] = "absent"
+            
         await callback.message.edit_reply_markup(
             reply_markup=get_attendance_keyboard(class_attendance)
         )
     await callback.answer()
 
-@router.callback_query(F.data == "finish_canteen")
+@canteen_router.callback_query(F.data == "finish_canteen")
 async def finish_canteen(callback: CallbackQuery):
-    present_count = sum(1 for status in class_attendance.values() if status)
+    # Рахуємо тільки тих, у кого статус "present" (✅)
+    present_count = sum(1 for status in class_attendance.values() if status == "present")
+    n_count = sum(1 for status in class_attendance.values() if status == "n")
     today_str = datetime.now().strftime("%Y-%m-%d")
 
     async with aiosqlite.connect(DB_NAME) as db:
@@ -79,15 +94,16 @@ async def finish_canteen(callback: CallbackQuery):
         )
         await db.commit()
 
-    report = f"🍽 8-А — {present_count} учнів"
+    report = f"🍽 8-А — {present_count} учнів прийдуть\n🔴 Точно не буде (н): {n_count}"
     await callback.message.answer(report)
 
+    # Повертаємо всіх у стан "absent" (❌) після збереження звіту
     for name in class_attendance:
-        class_attendance[name] = False
+        class_attendance[name] = "absent"
 
     await callback.answer("Звіт сформовано та збережено!")
 
-@router.message(F.text == "/today_report")
+@canteen_router.message(F.text == "/today_report")
 async def cmd_today_report(message: Message):
     today_str = datetime.now().strftime("%Y-%m-%d")
     async with aiosqlite.connect(DB_NAME) as db:
