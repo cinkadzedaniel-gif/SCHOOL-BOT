@@ -24,7 +24,7 @@ async def cancel_deadline(message: Message, state: FSMContext):
     await state.clear()
     await message.answer("❌ Пюдію скасовано. Повертаємось у головне меню", reply_markup=main_keyboard())
 
-@dedline_router.message(F.text == "Дедлайни")
+@dedline_router.message(F.text == "Посилання")
 async def menu(message: Message):
     await message.answer("Оберіть дію", reply_markup=dedline_keyboard())
 
@@ -85,6 +85,7 @@ async def waiting_discription(message: Message, state: FSMContext):
     )
     await message.answer(text, parse_mode="Markdown", reply_markup=main_keyboard())
 
+@dedline_router.message(F.text == "Переглянути посилання")
 async def view_dedline(message: Message):
     user_id = message.from_user.id
     deadlines = await get_dedlines(user_id)
