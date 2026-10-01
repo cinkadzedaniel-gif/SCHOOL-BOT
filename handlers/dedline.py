@@ -22,13 +22,13 @@ class Dedline(StatesGroup):
 @dedline_router.message(F.text == "❌ Скасувати")
 async def cancel_deadline(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer("❌ Дюдію скасовано. Повертаємось у головне меню", reply_markup=main_keyboard())
+    await message.answer("❌ Пюдію скасовано. Повертаємось у головне меню", reply_markup=main_keyboard())
 
 @dedline_router.message(F.text == "Дедлайни")
 async def menu(message: Message):
     await message.answer("Оберіть дію", reply_markup=dedline_keyboard())
 
-@dedline_router.message(F.text == "Додати дедлайн")
+@dedline_router.message(F.text == "Додати посилання")
 async def add_dedlina(message: Message, state: FSMContext):
     await message.answer("Напишіть назву дедлайну", reply_markup=dedline_keyboard()) # або ReplyKeyboardRemove якщо потрібно
     await state.set_state(Dedline.waiting_for_name)
@@ -49,7 +49,7 @@ async def waiting_data(message: Message, state: FSMContext):
         return
 
     await state.update_data(date=date_text)
-    await message.answer("Введіть опис дедлайна")
+    await message.answer("Введіть посилання на урок")
     await state.set_state(Dedline.waiting_for_description)
 
 @dedline_router.message(Dedline.waiting_for_description)
@@ -85,7 +85,6 @@ async def waiting_discription(message: Message, state: FSMContext):
     )
     await message.answer(text, parse_mode="Markdown", reply_markup=main_keyboard())
 
-@dedline_router.message(F.text == "Переглянути дедлайни")
 async def view_dedline(message: Message):
     user_id = message.from_user.id
     deadlines = await get_dedlines(user_id)
@@ -96,8 +95,8 @@ async def view_dedline(message: Message):
 
     for item in deadlines:
         text = (
-            f"📌 **Завдання:** {item['title']}\n"
-            f"⏳ **До:** {item['deadline_date']}\n"
+            f"📌 **Назва:** {item['title']}\n"
+            f"⏳ **Дата:** {item['deadline_date']}\n"
             f"📝 **Опис:** {item['description']}"
         )
         await message.answer(text, parse_mode="Markdown")

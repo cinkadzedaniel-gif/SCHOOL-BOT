@@ -1,8 +1,12 @@
 from aiogram.filters import Command, CommandStart
 from aiogram import Router
 from aiogram.types import Message
-from keyboard.inline import main_keyboard
+from keyboard.inline import main_keyboard, classmate_keyboard
+from dotenv import load_dotenv
+import os
 
+
+ADMIN_ID = os.getenv("ADMIN_ID")
 
 start_router = Router()
 
@@ -11,9 +15,12 @@ start_router = Router()
 # --- СТАРТ ---
 @start_router.message(CommandStart())
 async def cmd_start(message: Message):
-    await message.answer(
+    if ADMIN_ID:
+        await message.answer(
         f"👋 Привіт, **{message.from_user.first_name}**!\n\n"
         f"Я твій шкільний помічник 🤖. Обирай дію в меню нижче:",
         reply_markup=main_keyboard(),
         parse_mode="Markdown",
     )
+    else:
+        await message.answer(f"Привіт {message.from_user.first_name}", reply_markup=classmate_keyboard())

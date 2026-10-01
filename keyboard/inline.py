@@ -122,8 +122,16 @@ def scheduler_keyboard():
 def dedline_keyboard():
     return ReplyKeyboardMarkup(
         keyboard = [
-            [KeyboardButton(text = "Додати дедлайн")],
-            [KeyboardButton(text = "Переглянути дедлайни")],
+            [KeyboardButton(text = "Додати посилання")],
+            [KeyboardButton(text = "Переглянути посилання")],
             [KeyboardButton(text = "❌ Скасувати")]
+        ]
+    )
+
+
+def classmate_keyboard():
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="Переглянути посилання")]
         ]
     )
