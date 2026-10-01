@@ -26,7 +26,7 @@ def main_keyboard():
               KeyboardButton(text="⏲Нагадування"),
           ],
           [
-              KeyboardButton(text="Дедлайни"),
+              KeyboardButton(text="Посилання"),
               KeyboardButton(text="Відмітитись для їдальні"),
           ],
       ],
