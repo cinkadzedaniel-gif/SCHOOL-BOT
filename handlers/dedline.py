@@ -1,12 +1,18 @@
 from datetime import datetime
-from aiogram import Router, F
+import os
+from aiogram import Router, F, Bot
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from dotenv import load_dotenv
 from keyboard.inline import dedline_keyboard, main_keyboard 
 from database import add_dedline, get_dedlines, delete_deadline_from_db
 from google_service import create_event, delete_event, CALENDAR_ID
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+
+# Завантажуємо змінні середовища для отримання ID каналу
+load_dotenv()
+CHANNEL_ID = os.getenv("CHANNEL_ID")
 
 dedline_router = Router()
 
@@ -22,7 +28,7 @@ class Dedline(StatesGroup):
 @dedline_router.message(F.text == "❌ Скасувати")
 async def cancel_deadline(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer("❌ Пюдію скасовано. Повертаємось у головне меню", reply_markup=main_keyboard())
+    await message.answer("❌ Дюдію скасовано. Повертаємось у головне меню", reply_markup=main_keyboard())
 
 @dedline_router.message(F.text == "Посилання")
 async def menu(message: Message):
@@ -30,7 +36,7 @@ async def menu(message: Message):
 
 @dedline_router.message(F.text == "Додати посилання")
 async def add_dedlina(message: Message, state: FSMContext):
-    await message.answer("Напишіть назву дедлайну", reply_markup=dedline_keyboard()) # або ReplyKeyboardRemove якщо потрібно
+    await message.answer("Напишіть назву дедлайну", reply_markup=dedline_keyboard())
     await state.set_state(Dedline.waiting_for_name)
 
 @dedline_router.message(Dedline.waiting_for_name)
@@ -53,7 +59,7 @@ async def waiting_data(message: Message, state: FSMContext):
     await state.set_state(Dedline.waiting_for_description)
 
 @dedline_router.message(Dedline.waiting_for_description)
-async def waiting_discription(message: Message, state: FSMContext):
+async def waiting_discription(message: Message, state: FSMContext, bot: Bot):
     discription = message.text
 
     user_data = await state.get_data()
@@ -81,8 +87,20 @@ async def waiting_discription(message: Message, state: FSMContext):
         "ДЕДЛАЙН ВСТАНОВЛЕНО ТА СИНХРОНІЗОВАНО З КАЛЕНДАРЕМ! 🚀\n"
         f"📌 Назва: {title}\n"
         f"⏳ Дата: {date_str}\n"
-        f"📝 Опис: {discription}"
+        f"📝 Посилання / Опис: {discription}"
     )
+
+    # Відправляємо оновлену інформацію в канал
+    try:
+        if CHANNEL_ID:
+            await bot.send_message(
+                chat_id=CHANNEL_ID,
+                text=f"📌 **Нове посилання / дедлайн!**\n\n{text}",
+                parse_mode="Markdown"
+            )
+    except Exception as e:
+        print(f"Помилка при відправці в канал: {e}")
+
     await message.answer(text, parse_mode="Markdown", reply_markup=main_keyboard())
 
 @dedline_router.message(F.text == "Переглянути посилання")
