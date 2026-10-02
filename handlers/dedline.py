@@ -84,7 +84,7 @@ async def waiting_discription(message: Message, state: FSMContext, bot: Bot):
     await state.clear()
 
     text = (
-        "ДЕДЛАЙН ВСТАНОВЛЕНО ТА СИНХРОНІЗОВАНО З КАЛЕНДАРЕМ! 🚀\n"
+        
         f"📌 Назва: {title}\n"
         f"⏳ Дата: {date_str}\n"
         f"📝 Посилання / Опис: {discription}"
@@ -95,7 +95,7 @@ async def waiting_discription(message: Message, state: FSMContext, bot: Bot):
         if CHANNEL_ID:
             await bot.send_message(
                 chat_id=CHANNEL_ID,
-                text=f"📌 **Нове посилання / дедлайн!**\n\n{text}",
+                text=f"📌 **Нове посилання**\n\n{text}",
                 parse_mode="Markdown"
             )
     except Exception as e:
