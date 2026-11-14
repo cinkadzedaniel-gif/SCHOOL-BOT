@@ -23,4 +23,4 @@ async def cmd_start(message: Message):
         parse_mode="Markdown",
     )
     else:
-        await message.answer(f"Привіт {message.from_user.first_name}", reply_markup=classmate_keyboard())
+        await message.answer(f"Привіт {message.from_user.first_name}", reply_markup=main_keyboard())
