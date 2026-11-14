@@ -15,12 +15,10 @@ start_router = Router()
 # --- СТАРТ ---
 @start_router.message(CommandStart())
 async def cmd_start(message: Message):
-    if ADMIN_ID:
-        await message.answer(
+    await message.answer(
         f"👋 Привіт, **{message.from_user.first_name}**!\n\n"
         f"Я твій шкільний помічник 🤖. Обирай дію в меню нижче:",
         reply_markup=main_keyboard(),
         parse_mode="Markdown",
     )
-    else:
-        await message.answer(f"Привіт {message.from_user.first_name}", reply_markup=main_keyboard())
+   
